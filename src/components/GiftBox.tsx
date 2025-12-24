@@ -5,18 +5,39 @@ import * as THREE from 'three'
 import { MagicalSurprise } from './MagicalSurprise'
 
 interface GiftBoxProps {
+    /** Whether the box has started its drop animation */
     isDropped: boolean
+    /** 3D Position [x, y, z] */
     position?: [number, number, number]
+    /** Scale factor */
     scale?: number
+    /** Color of the box */
     color?: string
+    /** Color of the ribbon */
     ribbonColor?: string
+    /** If true, this is the main interaction box (triggers camera move/stats) */
     isMain?: boolean
+    /** Callback when the box is clicked/opened */
     onOpen?: () => void
+    /** Delay before the drop animation starts */
     delay?: number
+    /** Sound file URL to play on open/shake */
     soundUrl?: string
+    /** Interaction behavior: 'open' opens the box, 'shake' just shakes it */
     variant?: 'open' | 'shake'
 }
 
+/**
+ * GiftBox Component
+ * 
+ * Represents a 3D Christmas gift box using Framer Motion 3D for animations.
+ * Features:
+ * - Drop animation (entry).
+ * - Shake animation (on click or hover for extra boxes).
+ * - Opening animation (lid rotation).
+ * - Integrated 3D sound effects.
+ * - If `isMain` is true, it reveals the "MagicalSurprise" (scam reveal text) on open.
+ */
 export function GiftBox({
     isDropped,
     position = [0, 0, 0],

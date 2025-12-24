@@ -2,46 +2,56 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScamSpinner } from './ScamSpinner';
 
+/**
+ * SplashScreen Component
+ * 
+ * The first "page" of the application.
+ * Simulation Flow:
+ * 1. Scene 1: "Winning" the prize (spin animation).
+ * 2. Scene 2: The Glitch (simulating a system break).
+ * 3. Scene 3: Panic (red screen, "Hacked" message).
+ * 4. Scene 4: Countdown (urgency to act).
+ * 5. Completion: Passes control to the main 3D scene.
+ */
 export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
     const [scene, setScene] = useState(1);
     const [countdown, setCountdown] = useState(5);
     const [spinFinished, setSpinFinished] = useState(false);
     const [started, setStarted] = useState(false);
 
+    /**
+     * Main timeline orchestration.
+     * Transitions between scenes based on fixed timeouts to create a scripted experience.
+     */
     useEffect(() => {
         if (!started) return;
 
-        // Play spin sound on mount (when started)
-        // We handle this in the click handler for better browser support, 
-        // but can keeping a safeguard here or solely relying on the click.
-        // Let's rely on the click handler for the initial sound to ensure autoplay policy compliance.
-
-        // Scene 1: The Perfect Win (0-6s)
+        // Scene 1: The Perfect Win (Starts at 0s, Spin finishes at 5s)
         const timer1 = setTimeout(() => {
-            // Spin finishes at 5s (matching audio/animation)
-            setSpinFinished(true);
+            setSpinFinished(true); // Triggers "Win" state in Spinner
         }, 5000);
 
+        // Transition to Scene 2: Glitch Interruption (Total 8s)
         const timerGlitch = setTimeout(() => {
             setScene(2);
-        }, 8000); // 8s duration for Scene 1 (5s spin + 3s celebrate)
+        }, 8000);
 
-        // Scene 2: Glitch Interruption (8s - 11s)
+        // Transition to Scene 3: Panic Reveal (Total 11s)
         const timer2 = setTimeout(() => {
             setScene(3);
         }, 11000);
 
-        // Scene 3: Panic Reveal (11s - 15s)
+        // Transition to Scene 4: Countdown (Total 15s)
         const timer3 = setTimeout(() => {
             setScene(4);
         }, 15000);
 
-        // Scene 4: Countdown (15s - 20s)
+        // Start real countdown logic (Total 20s)
         const timer4 = setTimeout(() => {
             setScene(5);
         }, 20000);
 
-        // Scene 5: Release
+        // Completion / Release to main app
         const timer5 = setTimeout(() => {
             onComplete();
         }, 20000);
@@ -56,7 +66,9 @@ export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
         };
     }, [onComplete, started]);
 
-    // Scene Audio Effects
+    /**
+     * Audio cues triggered by scene changes.
+     */
     useEffect(() => {
         if (scene === 2) {
             const audio = new Audio('/glitch.mp3');
@@ -71,8 +83,7 @@ export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
             audio.volume = 0.6;
             audio.play().catch(e => console.log('Countdown audio failed:', e));
 
-            // Countdown logic moved here or kept separate, 
-            // but the audio trigger is now centralized by scene.
+            // Start visual countdown decrement
             const interval = setInterval(() => {
                 setCountdown((prev) => {
                     if (prev <= 1) return 0;
@@ -90,6 +101,7 @@ export const SplashScreen = ({ onComplete }: { onComplete: () => void }) => {
             winAudio.volume = 0.5;
             winAudio.play().catch(e => console.log('Audio play failed:', e));
 
+            // Play error sound right after win sound to bridge to the glitch
             winAudio.onended = () => {
                 const errorAudio = new Audio('/error.mp3');
                 errorAudio.volume = 0.5;

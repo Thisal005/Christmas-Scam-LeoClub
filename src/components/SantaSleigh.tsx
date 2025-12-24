@@ -3,10 +3,18 @@ import { motion } from 'framer-motion-3d'
 import * as THREE from 'three'
 
 interface SantaSleighProps {
+    /** Whether to start the fly-in animation */
     start: boolean
+    /** Callback triggered when the gift should decrease/drop */
     onDrop: () => void
 }
 
+/**
+ * SantaSleigh Component
+ * 
+ * The main 3D asset for the delivery sequence using low-poly styled geometries.
+ * Animates across the screen and triggers the gift drop event at the midway point.
+ */
 export function SantaSleigh({ start, onDrop }: SantaSleighProps) {
 
     // Trigger the drop exactly when sleigh is in the middle

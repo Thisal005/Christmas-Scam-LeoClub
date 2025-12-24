@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion-3d'
 
+/**
+ * BackgroundSanta Component
+ * 
+ * An ambient animation triggering periodically.
+ * Shows Santa flying in the far background (silhouette style) to add life to the scene.
+ */
 export function BackgroundSanta() {
     const [active, setActive] = useState(false)
 

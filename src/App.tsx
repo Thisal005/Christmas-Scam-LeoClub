@@ -9,17 +9,34 @@ import { SplashScreen } from './components/SplashScreen'
 import { EndingScene } from './components/EndingScene'
 import { useScamStats } from './hooks/useScamStats'
 
+/**
+ * Main Application Component
+ * 
+ * Orchestrates the entire user experience including:
+ * 1. Splash Screen (Initial engagement)
+ * 2. 3D Scene (Main interaction)
+ * 3. Ending Scene (Educational reveal)
+ * 
+ * Uses @react-three/fiber for 3D rendering.
+ */
 function App() {
+    // --- State Management ---
     const { visits, victims, incrementVisit, incrementVictim } = useScamStats()
     const bgMusicRef = useRef<HTMLAudioElement | null>(null)
+
+    // UI Flow States
+    const [showSplash, setShowSplash] = useState(true)
     const [musicStarted, setMusicStarted] = useState(false)
     const [deliveryStarted, setDeliveryStarted] = useState(false)
     const [boxDropped, setBoxDropped] = useState(false)
     const [extraGifts, setExtraGifts] = useState(false)
-
     const [isMobile, setIsMobile] = useState(false)
 
-    // Detect mobile screen
+    // --- Effects ---
+
+    /**
+     * Detects mobile screen width to adjust 3D camera and object positions.
+     */
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768)
         checkMobile()
@@ -27,7 +44,10 @@ function App() {
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
 
-    // Configuration for the 6 extra gifts
+    /**
+     * Configuration for the 6 extra gifts that appear after the "scam" is triggered.
+     * Positions are adjusted based on the device type (mobile vs desktop).
+     */
     const giftsConfig = [
         {
             pos: isMobile ? [-0.7, 4, -2] : [-3.2, 1, -2],
@@ -55,10 +75,9 @@ function App() {
         }, // Bottom Left
     ] as const
 
-    // Splash Screen State
-    const [showSplash, setShowSplash] = useState(true)
-
-    // Initialize background music
+    /**
+     * Initializes background music and tracks the initial visit.
+     */
     useEffect(() => {
         bgMusicRef.current = new Audio('/bg.mp3')
         bgMusicRef.current.loop = true
@@ -67,33 +86,38 @@ function App() {
         incrementVisit()
     }, [])
 
-    // Handle music and delivery start after splash screen
+    /**
+     * Attempts to start music and delivery sequence after splash screen.
+     * Handles browser autoplay policies.
+     */
+    /**
+     * Attempts to start music and delivery sequence after splash screen.
+     * Visuals start immediately; audio attempts to autoplay but fails gracefully.
+     */
     useEffect(() => {
-        const tryStartSequence = async () => {
-            if (bgMusicRef.current) {
-                try {
-                    await bgMusicRef.current.play()
-                    setMusicStarted(true)
-                    setDeliveryStarted(true)
-                } catch (err) {
-                    console.log('Autoplay blocked, waiting for interaction')
-                }
-            }
-        }
-
         if (!showSplash) {
-            tryStartSequence()
+            // ALWAYS start visual delivery immediately
+            setDeliveryStarted(true)
+
+            // Try to play audio, but don't block visuals if it fails
+            if (bgMusicRef.current) {
+                bgMusicRef.current.play()
+                    .then(() => setMusicStarted(true))
+                    .catch(err => console.log('Autoplay blocked, waiting for interaction'))
+            }
         }
     }, [showSplash])
 
-    // Fallback interaction handler if autoplay failed
+    /**
+     * Fallback interaction handler if autoplay failed.
+     * Ensures music starts on the first user interaction after splash.
+     */
     useEffect(() => {
         const handleInteraction = () => {
             if (!showSplash && !musicStarted && bgMusicRef.current) {
                 bgMusicRef.current.play()
                     .then(() => {
                         setMusicStarted(true)
-                        setDeliveryStarted(true)
                     })
                     .catch(err => console.log('Playback failed:', err))
             }
@@ -107,10 +131,12 @@ function App() {
 
     return (
         <>
+            {/* 1. Splash Screen Phase */}
             {showSplash && (
                 <SplashScreen onComplete={() => setShowSplash(false)} />
             )}
 
+            {/* 2. Main 3D Experience Phase */}
             <Canvas
                 shadows
                 camera={{ position: [0, 2, isMobile ? 13.5 : 8], fov: 45 }}
@@ -120,8 +146,7 @@ function App() {
                     position: 'fixed',
                     top: 0,
                     left: 0,
-                    // Hide canvas visually while splash is active, 
-                    // or keep it behind if splash is opaque (splash is black background so it covers it)
+                    // Hide canvas visually while splash is active to save resources/avoid pop-in
                     visibility: showSplash ? 'hidden' : 'visible'
                 }}
             >
@@ -129,6 +154,7 @@ function App() {
                 <fog attach="fog" args={['#050510', 5, 20]} />
 
                 <Suspense fallback={null}>
+                    {/* Lighting & Environment */}
                     <Environment preset="night" />
 
                     <ambientLight intensity={0.5} />
@@ -153,13 +179,13 @@ function App() {
                         color="#ffffff"
                     />
 
-                    {/* Delivery Sequence */}
+                    {/* Delivery Sequence: Sleigh flying in */}
                     <SantaSleigh
                         start={deliveryStarted}
                         onDrop={() => setBoxDropped(true)}
                     />
 
-                    {/* The Main Gift Box - Scaling slightly down for mobile if needed, but camera distance handles most */}
+                    {/* The Main Gift Box: The "Trap" */}
                     <GiftBox
                         isDropped={boxDropped}
                         isMain={true}
@@ -169,7 +195,7 @@ function App() {
                         }}
                     />
 
-                    {/* Extra Gifts - Floating in background */}
+                    {/* Extra Gifts: Floating elements appearing after the trap is sprung */}
                     {extraGifts && giftsConfig.map((gift, i) => (
                         <Float key={i} speed={2} rotationIntensity={1} floatIntensity={1} position={gift.pos as any}>
                             <GiftBox
@@ -186,29 +212,17 @@ function App() {
 
                     <OrbitControls
                         enablePan={false}
-                        enableZoom={false} // We handle zoom programmatically
+                        enableZoom={false} // Zoom is handled programmatically via camera position
                         minPolarAngle={Math.PI / 4}
                         maxPolarAngle={Math.PI / 1.5}
                     />
                 </Suspense>
             </Canvas>
 
+            {/* UI Overlays */}
             {!showSplash && <Overlay visits={visits} victims={victims} />}
 
-            {!showSplash && !musicStarted && (
-                <div style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    color: 'white',
-                    fontFamily: 'sans-serif',
-                    opacity: 0.8,
-                    pointerEvents: 'none'
-                }}>
-                    Click anywhere to start
-                </div>
-            )}
+            {/* 3. Ending Scene Phase: The Educational Reveal */}
             {extraGifts && (
                 <EndingScene
                     onRestart={() => window.location.reload()}

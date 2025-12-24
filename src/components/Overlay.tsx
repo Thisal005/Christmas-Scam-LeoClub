@@ -3,6 +3,12 @@ interface OverlayProps {
     victims: number;
 }
 
+/**
+ * Overlay Component
+ * 
+ * Displays the "Hacker Dashboard" style statistics in the top right.
+ * Also shows the credits in the bottom right.
+ */
 export function Overlay({ visits, victims }: OverlayProps) {
     return (
         <div className="absolute top-0 left-0 w-full h-full pointer-events-none flex flex-col items-center justify-end pb-12 font-sans text-white/50">

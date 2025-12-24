@@ -5,9 +5,13 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 interface MagicalSurpriseProps {
+    /** Whether the box is open and the surprise should be visible/animating */
     isOpen: boolean
 }
 
+/**
+ * A simple 3D Santa primitive constructed from basic geometries.
+ */
 function MiniSanta() {
     return (
         <group scale={0.3}>
@@ -28,6 +32,9 @@ function MiniSanta() {
     )
 }
 
+/**
+ * Procedural particle system that creates a spiraling "gold dust" effect.
+ */
 function SpiralParticles({ active }: { active: boolean }) {
     const count = 30
     // Create random spiral positions
@@ -67,6 +74,15 @@ function SpiralParticles({ active }: { active: boolean }) {
 
 }
 
+/**
+ * MagicalSurprise Component
+ * 
+ * The content that flies out of the main gift box.
+ * Features:
+ * - Personalizable text (via URL param `?to=Name`).
+ * - Mini Santa character.
+ * - Particle effects (Spirals and Sparkles).
+ */
 export function MagicalSurprise({ isOpen }: MagicalSurpriseProps) {
     const params = new URLSearchParams(window.location.search)
     const name = params.get('to')

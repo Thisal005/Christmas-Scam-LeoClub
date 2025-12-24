@@ -1,12 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
+import { StatItem } from './StatItem';
 
 interface EndingSceneProps {
+    /** Function to reload the application/restart the experience */
     onRestart: () => void;
+    /** Function to stop the main background music from App.tsx */
     onStopBgMusic: () => void;
 }
 
+/**
+ * EndingScene Component
+ * 
+ * Displays the cinematic "reveal" sequence where the user learns this was a simulation.
+ * It progresses through multiple stages:
+ * 1. Playing: A timed cinematic sequence showing facts and warnings.
+ * 2. Finished: Displays a "Roast Card" summarizing the user's "fail".
+ * 3. Sendoff: A final message from the organization (Leo Club) with credits.
+ */
 export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
     // 0: Idle/Start, 1: Sequence Active, 2: Finished (Card), 3: SendOff
     const [status, setStatus] = useState<'idle' | 'playing' | 'finished' | 'sendoff'>('idle');
@@ -19,6 +31,10 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
     const endingBgRef = useRef<HTMLAudioElement | null>(null);
     const cardRef = useRef<HTMLDivElement>(null);
 
+    /**
+     * Starts the cinematic ending sequence.
+     * Initializes specific ending audio and stops the main App music.
+     */
     const startEnding = () => {
         onStopBgMusic();
         setStatus('playing');
@@ -38,6 +54,10 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
         endingBgRef.current.play().catch(e => console.warn("Ending music play failed:", e));
     };
 
+    /**
+     * Main timeline loop for the cinematics.
+     * Updates `currentTime` every 100ms and triggers audio cues at specific timestamps.
+     */
     useEffect(() => {
         if (status !== 'playing') return;
 
@@ -53,7 +73,6 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
             glitchAudioRef.current?.play().catch(() => { });
         }
 
-        // Text Reveal Sound Triggers (error-glitch.mp3) - Updated for new timeline
         // Text Reveal Sound Triggers (error-glitch.mp3) - Syncing with all English & Sinhala text reveals
         const textRevealTimes = [
             0.1,        // Intro text (Eng)
@@ -97,7 +116,10 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
         return () => clearInterval(interval);
     }, [status, currentTime]);
 
-    // Handle Send-off Sequence Timer
+    /**
+     * Timeline loop for the Final Send-off sequence.
+     * Starts after the user interacts with the Roast Card or downloads it.
+     */
     useEffect(() => {
         if (status !== 'sendoff') return;
 
@@ -127,6 +149,9 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
         };
     }, []);
 
+    /**
+     * Generates an image from the Roast Card DOM element and triggers a download.
+     */
     const handleDownload = async () => {
         if (cardRef.current) {
             const canvas = await html2canvas(cardRef.current, {
@@ -814,15 +839,3 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
         </div>
     );
 };
-
-const StatItem = ({ label, value, color, delay }: { label: string, value: string, color: string, delay: number }) => (
-    <motion.div
-        className="flex items-center justify-between border-b border-gray-800 pb-2"
-        initial={{ x: -20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ delay }}
-    >
-        <span className="text-gray-400 text-sm md:text-lg font-mono">{label}</span>
-        <span className={`text-xl md:text-3xl font-bold ${color}`}>{value}</span>
-    </motion.div>
-);
