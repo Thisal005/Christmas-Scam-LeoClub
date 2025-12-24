@@ -675,9 +675,24 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
                                 }}
                                 className="bg-red-600 text-white font-bold py-2 px-6 rounded-full hover:bg-red-700 transition-colors"
                             >
-                                🔁 Restart
+                                See Final Message ➡️
                             </button>
                         </div>
+
+                        <motion.div
+                            className="mt-8 flex flex-col items-center gap-2"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 2 }}
+                        >
+                            <p className="text-gray-400 text-sm uppercase tracking-widest animate-pulse">Wait... there's more</p>
+                            <motion.div
+                                animate={{ y: [0, 10, 0] }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                            >
+                                👇
+                            </motion.div>
+                        </motion.div>
                     </motion.div>
                 )}
 
@@ -836,6 +851,6 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
                     <span className="absolute -inset-2 bg-white/5 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
                 </a>
             </div>
-        </div>
+        </div >
     );
 };
