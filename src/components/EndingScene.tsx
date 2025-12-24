@@ -9,8 +9,9 @@ interface EndingSceneProps {
 
 export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
     // 0: Idle/Start, 1: Sequence Active, 2: Finished (Card), 3: SendOff
-    const [status, setStatus] = useState<'idle' | 'playing' | 'finished' | 'sendoff' | 'sendoff2'>('idle');
+    const [status, setStatus] = useState<'idle' | 'playing' | 'finished' | 'sendoff'>('idle');
     const [currentTime, setCurrentTime] = useState(0);
+    const [sendoffTime, setSendoffTime] = useState(0);
 
     // Audio Refs
     const glitchAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -96,18 +97,27 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
         return () => clearInterval(interval);
     }, [status, currentTime]);
 
-    // Handle Send-off Sequence Transitions
+    // Handle Send-off Sequence Timer
     useEffect(() => {
-        let timeout: NodeJS.Timeout;
+        if (status !== 'sendoff') return;
 
-        if (status === 'sendoff') {
-            timeout = setTimeout(() => setStatus('sendoff2'), 10000); // 10 seconds for English Send-off
-        } else if (status === 'sendoff2') {
-            timeout = setTimeout(onRestart, 10000); // 10 seconds for Sinhala Send-off
+        const interval = setInterval(() => {
+            setSendoffTime(prev => prev + 0.1);
+        }, 100);
+
+        // Fade out audio at 16s (extended from 13s)
+        if (sendoffTime > 16 && endingBgRef.current) {
+            const newVolume = Math.max(0, 0.5 - ((sendoffTime - 16) * 0.5));
+            endingBgRef.current.volume = newVolume;
         }
 
-        return () => clearTimeout(timeout);
-    }, [status, onRestart]);
+        // End at 17.5s (extended from 14.5s)
+        if (sendoffTime >= 17.5) {
+            onRestart();
+        }
+
+        return () => clearInterval(interval);
+    }, [status, sendoffTime, onRestart]);
 
     // Cleanup audio on unmount
     useEffect(() => {
@@ -135,6 +145,7 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
 
     // Helper for time ranges
     const isTime = (start: number, end: number) => currentTime >= start && currentTime < end;
+    const isSendoffTime = (start: number, end: number) => sendoffTime >= start && sendoffTime < end;
 
     return (
         <div className="fixed inset-0 z-[100] pointer-events-none flex flex-col items-center justify-center font-sans">
@@ -645,85 +656,143 @@ export const EndingScene = ({ onRestart, onStopBgMusic }: EndingSceneProps) => {
                     </motion.div>
                 )}
 
-                {/* SCENE E6: Send-off 1 (English) */}
+                {/* SCENE E6: Cinematic Ending (10s) */}
                 {status === 'sendoff' && (
                     <motion.div
-                        key="scene-e6"
+                        key="cinematic-sendoff"
                         className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center text-center pointer-events-auto"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+                        exit={{ opacity: 0, transition: { duration: 1 } }}
                     >
-                        <motion.h1
-                            className="text-4xl text-white font-serif italic mb-4"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            Merry Christmas 🎄
-                        </motion.h1>
-                        <motion.p
-                            className="text-gray-400 font-mono"
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 1 }}
-                        >
-                            Stay curious. Stay skeptical.
-                        </motion.p>
-                        <motion.div
-                            className="mt-8 max-w-md"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 2 }}
-                        >
-                            <p className="text-gray-500 text-sm mb-1 font-mono">
-                                Share this with your friends and loved ones.
-                            </p>
-                            <p className="text-gray-600 text-xs font-mono">
-                                A little awareness can protect someone you care about.
-                            </p>
-                        </motion.div>
-                    </motion.div>
-                )}
+                        {/* 0-3s: Intro */}
+                        {isSendoffTime(0, 3) && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1, transition: { duration: 1.5, ease: "easeIn" } }}
+                                exit={{ opacity: 0, y: -20, transition: { duration: 0.8 } }}
+                                className="flex flex-col items-center"
+                            >
+                                <p className="text-white text-lg md:text-2xl font-medium tracking-wide">
+                                    This message is from the Leo Club of St. Servatius College.
+                                </p>
+                            </motion.div>
+                        )}
 
-                {/* SCENE E7: Send-off 2 (Sinhala) */}
-                {status === 'sendoff2' && (
-                    <motion.div
-                        key="scene-e7"
-                        className="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center text-center pointer-events-auto"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                    >
-                        <motion.h1
-                            className="text-4xl text-white font-serif italic mb-4"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            සුබ නත්තලක් වේවා!
-                        </motion.h1>
-                        <motion.p
-                            className="text-gray-400 font-mono"
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 1 }}
-                        >
-                            විමසිලිමත් වන්න. සැක සහිත දේ ගැන අවදියෙන් සිටින්න.
-                        </motion.p>
-                        <motion.div
-                            className="mt-8 max-w-md"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 2 }}
-                        >
-                            <p className="text-gray-500 text-sm mb-1 font-mono">
-                                මෙය ඔබගේ මිතුරන් සහ ආදරණීයයන් සමඟ බෙදා ගන්න.
-                            </p>
-                            <p className="text-gray-600 text-xs font-mono">
-                                කුඩා දැනුවත් කිරීමක් මඟින් ඔබ ආදරණීයන්ව ආරක්ෂා කළ හැකිය.
-                            </p>
-                        </motion.div>
+                        {/* 3-6s: Stay Safe */}
+                        {isSendoffTime(3, 6) && (
+                            <motion.div
+                                className="flex flex-col gap-3"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 1.05, transition: { duration: 1 } }}
+                            >
+                                <motion.h2
+                                    className="text-3xl md:text-5xl font-bold text-white tracking-tight"
+                                    initial={{ filter: "blur(5px)" }}
+                                    animate={{ filter: "blur(0px)" }}
+                                >
+                                    Pause. Verify. Protect.
+                                </motion.h2>
+                                <motion.p
+                                    className="text-gray-400 text-lg md:text-xl font-light"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                >
+                                    Digital awareness matters.
+                                </motion.p>
+                                <motion.div
+                                    className="absolute inset-0 bg-white/5 blur-3xl rounded-full"
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    animate={{ opacity: 1, scale: 1.5 }}
+                                    transition={{ duration: 0.2, yoyo: 1 }}
+                                    style={{ pointerEvents: 'none' }}
+                                />
+                            </motion.div>
+                        )}
+
+                        {/* 6-9s: Credits */}
+                        {isSendoffTime(6.0, 9.0) && (
+                            <motion.div
+                                className="flex flex-col items-center"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                <p className="text-gray-500 text-sm uppercase tracking-[0.2em] mb-2">
+                                    Scripted & Developed by
+                                </p>
+                                <h3 className="text-2xl md:text-4xl text-white font-medium tracking-wide">
+                                    Thisal Thiranjith
+                                </h3>
+                            </motion.div>
+                        )}
+
+                        {/* 9-11s: Merry Christmas (English) */}
+                        {isSendoffTime(9.0, 11.0) && (
+                            <motion.h1
+                                className="text-3xl md:text-5xl text-red-500 font-serif italic"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                Merry Christmas 🎄
+                            </motion.h1>
+                        )}
+
+                        {/* 11-13s: Merry Christmas (Sinhala) */}
+                        {isSendoffTime(11.0, 13.5) && (
+                            <motion.h1
+                                className="text-3xl md:text-5xl text-red-500 font-serif italic"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                සුබ නත්තලක් වේවා! 🎄
+                            </motion.h1>
+                        )}
+
+                        {/* 13.5-16.5s: Logo Reveal with Cinematic Animation */}
+                        {isSendoffTime(13.5, 17.0) && (
+                            <motion.div
+                                className="flex flex-col items-center justify-center p-4"
+                                initial={{ opacity: 0, scale: 0.8, filter: "brightness(0)" }}
+                                animate={{ opacity: 1, scale: 1, filter: "brightness(1.2)" }}
+                                exit={{ opacity: 0, scale: 1.5, filter: "blur(10px)" }}
+                                transition={{ duration: 1.5, ease: "easeInOut" }}
+                            >
+                                <motion.img
+                                    src="/logo.png"
+                                    alt="Logo"
+                                    className="w-32 md:w-64 object-contain shadow-[0_0_50px_rgba(255,255,255,0.4)] rounded-full"
+                                    initial={{ rotate: -5 }}
+                                    animate={{ rotate: 0 }}
+                                    transition={{ duration: 3, ease: "easeOut" }}
+                                />
+                            </motion.div>
+                        )}
+
+                        {/* 16.5-18s: Fade Black (extended fade out) */}
+                        {sendoffTime > 16.5 && (
+                            <motion.div
+                                className="absolute inset-0 bg-black z-[101]"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 1 }}
+                            />
+                        )}
+
+                        {/* Optional Footer */}
+                        <div className="absolute bottom-6 left-0 w-full text-center">
+                            <motion.p
+                                className="text-[10px] text-gray-600 uppercase tracking-widest opacity-50"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 0.5 }}
+                            >
+                                Awareness is protection.
+                            </motion.p>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

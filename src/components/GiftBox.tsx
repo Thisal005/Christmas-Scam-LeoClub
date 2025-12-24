@@ -61,9 +61,13 @@ export function GiftBox({
         setTimeout(() => setIsShaking(false), 500) // Shake duration
     }
 
+    // Track if opening sequence has played to prevent echoes (since onOpen changes on render)
+    const hasPlayedRef = useRef(false)
+
     // Play audio when box is opened (only for 'open' variant)
     useEffect(() => {
-        if (variant === 'open' && isOpen && audioRef.current) {
+        if (variant === 'open' && isOpen && audioRef.current && !hasPlayedRef.current) {
+            hasPlayedRef.current = true
             audioRef.current.currentTime = 0
             audioRef.current.play().catch(err => console.log('Audio play failed:', err))
             if (onOpen) onOpen()

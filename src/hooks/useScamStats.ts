@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const API_BASE = 'https://api.counterapi.dev/v1/christmas-scam-leoclub';
 

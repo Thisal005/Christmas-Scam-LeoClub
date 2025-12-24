@@ -31,7 +31,7 @@ function App() {
     const giftsConfig = [
         {
             pos: isMobile ? [-0.7, 4, -2] : [-3.2, 1, -2],
-            color: '#27AE60', ribbon: '#C0392B', scale: 0.6, sound: '/sound_1.mp3'
+            color: '#27AE60', ribbon: '#C0392B', scale: 0.6, sound: '/sound_12.mp3'
         }, // Top Left
         {
             pos: isMobile ? [1.1, 3, -2] : [3.5, 4, -2],
@@ -47,7 +47,7 @@ function App() {
         }, // Mid Left
         {
             pos: isMobile ? [1.8, -2, -1] : [5, 2, 0],
-            color: '#16A085', ribbon: '#E74C3C', scale: 0.7, sound: '/sound_5.mp3'
+            color: '#16A085', ribbon: '#E74C3C', scale: 0.7, sound: '/sound_11.mp3'
         }, // Bottom Right
         {
             pos: isMobile ? [-1.9, -1.8, -2] : [-5, 3.5, -1],
@@ -113,7 +113,7 @@ function App() {
 
             <Canvas
                 shadows
-                camera={{ position: [0, 2, isMobile ? 16 : 8], fov: 45 }}
+                camera={{ position: [0, 2, isMobile ? 13.5 : 8], fov: 45 }}
                 style={{
                     width: '100vw',
                     height: '100vh',
@@ -131,7 +131,8 @@ function App() {
                 <Suspense fallback={null}>
                     <Environment preset="night" />
 
-                    <ambientLight intensity={0.2} />
+                    <ambientLight intensity={0.5} />
+                    <directionalLight position={[0, 2, 5]} intensity={1} />
                     <spotLight
                         position={[10, 10, 10]}
                         angle={0.15}
