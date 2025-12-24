@@ -103,7 +103,7 @@ function App() {
             if (bgMusicRef.current) {
                 bgMusicRef.current.play()
                     .then(() => setMusicStarted(true))
-                    .catch(err => console.log('Autoplay blocked, waiting for interaction'))
+                    .catch(() => console.log('Autoplay blocked, waiting for interaction'))
             }
         }
     }, [showSplash])
