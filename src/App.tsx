@@ -7,8 +7,10 @@ import { BackgroundSanta } from './components/BackgroundSanta'
 import { SantaSleigh } from './components/SantaSleigh'
 import { SplashScreen } from './components/SplashScreen'
 import { EndingScene } from './components/EndingScene'
+import { useScamStats } from './hooks/useScamStats'
 
 function App() {
+    const { visits, victims, incrementVisit, incrementVictim } = useScamStats()
     const bgMusicRef = useRef<HTMLAudioElement | null>(null)
     const [musicStarted, setMusicStarted] = useState(false)
     const [deliveryStarted, setDeliveryStarted] = useState(false)
@@ -37,7 +39,7 @@ function App() {
         }, // Top Right
         {
             pos: isMobile ? [1.5, 1, 0] : [3.5, -1, 0],
-            color: '#8E44AD', ribbon: '#F39C12', scale: 0.5, sound: '/sound_3.mp3'
+            color: '#8E44AD', ribbon: '#F39C12', scale: 0.5, sound: '/sound_7.mp3'
         }, // Mid Right
         {
             pos: isMobile ? [-1, 2, 0] : [-5, -1, 0],
@@ -49,7 +51,7 @@ function App() {
         }, // Bottom Right
         {
             pos: isMobile ? [-1.9, -1.8, -2] : [-5, 3.5, -1],
-            color: '#FF69B4', ribbon: '#FFFFFF', scale: 0.6, sound: '/sound_6.mp3'
+            color: '#FF69B4', ribbon: '#FFFFFF', scale: 0.6, sound: '/sound_4.mp3'
         }, // Bottom Left
     ] as const
 
@@ -61,6 +63,8 @@ function App() {
         bgMusicRef.current = new Audio('/bg.mp3')
         bgMusicRef.current.loop = true
         bgMusicRef.current.volume = 0.4
+
+        incrementVisit()
     }, [])
 
     // Handle music and delivery start after splash screen
@@ -158,7 +162,10 @@ function App() {
                     <GiftBox
                         isDropped={boxDropped}
                         isMain={true}
-                        onOpen={() => setExtraGifts(true)}
+                        onOpen={() => {
+                            setExtraGifts(true)
+                            incrementVictim()
+                        }}
                     />
 
                     {/* Extra Gifts - Floating in background */}
@@ -185,7 +192,7 @@ function App() {
                 </Suspense>
             </Canvas>
 
-            {!showSplash && <Overlay />}
+            {!showSplash && <Overlay visits={visits} victims={victims} />}
 
             {!showSplash && !musicStarted && (
                 <div style={{

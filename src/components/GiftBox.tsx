@@ -26,7 +26,7 @@ export function GiftBox({
     isMain = false,
     onOpen,
     delay = 0,
-    soundUrl = '/gift_3.mp3',
+    soundUrl = '/message.mp3',
     variant = 'open'
 }: GiftBoxProps) {
     const [isOpen, setIsOpen] = useState(false)
