@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { Environment, Sparkles, OrbitControls, Float } from '@react-three/drei'
 import { Suspense, useState, useEffect, useRef } from 'react'
+import { Analytics } from '@vercel/analytics/react'
 import { GiftBox } from './components/GiftBox'
 import { Overlay } from './components/Overlay'
 import { BackgroundSanta } from './components/BackgroundSanta'
@@ -234,6 +235,9 @@ function App() {
                     }}
                 />
             )}
+
+            {/* Vercel Web Analytics */}
+            <Analytics />
         </>
     )
 }
