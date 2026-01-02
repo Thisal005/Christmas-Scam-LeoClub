@@ -2,8 +2,6 @@
 
 <div align="center">
 
-![Christmas Scam Simulator](public/logo.png)
-
 **An Interactive Educational Experience About Online Scams**
 
 [![React](https://img.shields.io/badge/React-18.3.1-61DAFB?style=flat&logo=react)](https://reactjs.org/)
