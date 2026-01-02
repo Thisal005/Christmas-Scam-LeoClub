@@ -17,7 +17,7 @@
 
 ## 📖 Overview
 
-**Christmas Scam Simulator** is an immersive, interactive web application designed to educate users about the dangers of online scams through a gamified Christmas-themed experience. Created by **Leo Club**, this project simulates common scam tactics in a safe, controlled environment to raise awareness about digital security.
+**Christmas Scam Simulator** is an immersive, interactive web application designed to educate users about the dangers of online scams through a gamified Christmas-themed experience. Created for the **Leo Club of St. Servatius College Matara**, this project simulates common scam tactics in a safe, controlled environment to raise awareness about digital security.
 
 ### 🎯 Purpose
 
@@ -321,29 +321,6 @@ This is an educational project by Leo Club. If you'd like to contribute:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
----
-
-## 📝 License
-
-This project is created for educational purposes by Leo Club. Please use responsibly and ensure users understand it's a simulation.
-
----
-
-## 👥 Credits
-
-### Development Team
-- **Leo Club** - Project concept and development
-
-### Technologies & Libraries
-- React Team - React framework
-- Three.js Team - 3D rendering
-- Poimandres - React Three Fiber ecosystem
-- Framer - Motion animation library
-- Tailwind Labs - Tailwind CSS
-
-### Assets
-- Audio files and visual assets created for this project
-- Counter API for statistics tracking
 
 ---
 
@@ -367,7 +344,6 @@ Use this project responsibly to educate others about online safety.
 ## 📧 Contact
 
 For questions, suggestions, or educational partnerships:
-- **Organization**: Leo Club
 - **Repository**: [https://github.com/Thisal005/Christmas-Scam-LeoClub](https://github.com/Thisal005/Christmas-Scam-LeoClub)
 
 ---
